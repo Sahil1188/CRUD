@@ -14,6 +14,17 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Check if email already exists
+      const existingUser = await axios.get(`http://localhost:5000/api/users/email/${email}`);
+      
+      if (existingUser.data) {
+        // Email already exists, suggest login
+        alert('Email is already registered. Redirecting to login page.');
+        navigate('/login');
+        return;
+      }
+
+      // Register new user
       const response = await axios.post('http://localhost:5000/api/users', { username, email, password });
       alert('User registered successfully!');
       const userId = response.data.id;

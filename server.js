@@ -48,10 +48,21 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-// Read user profile
+// Read user profile by ID
 app.get('/api/users/:id', (req, res) => {
   const { id } = req.params;
   db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.json(row);
+  });
+});
+
+// Read user profile by email
+app.get('/api/users/email/:email', (req, res) => {
+  const { email } = req.params;
+  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -80,6 +91,21 @@ app.delete('/api/users/:id', (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     res.status(200).json({ changes: this.changes });
+  });
+});
+
+// User login
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  db.get(`SELECT * FROM users WHERE email = ? AND password = ?`, [email, password], (err, row) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    if (row) {
+      res.json({ id: row.id });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password.' });
+    }
   });
 });
 
